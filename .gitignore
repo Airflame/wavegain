@@ -1,0 +1,26 @@
+# CMake build directories
+build/
+out/
+cmake-build-*/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# CLion
+.idea/
+
+# Build artifacts
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.vst3
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
