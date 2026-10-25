@@ -35,11 +35,11 @@ smtg_enable_vst3_sdk()
 smtg_add_vst3plugin(Wavegain
     source/version.h
     source/cids.h
-    source/processor.h
-    source/processor.cpp
-    source/controller.h
-    source/controller.cpp
+    source/wavegain.h
+    source/wavegain.cpp
     source/entry.cpp
+    ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/vstsinglecomponenteffect.h
+    ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/vstsinglecomponenteffect.cpp
 )
 
 #- VSTGUI Wanted ----

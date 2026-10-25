@@ -2,7 +2,7 @@
 // Copyright(c) 2026 Airflame.
 //------------------------------------------------------------------------
 
-#include "processor.h"
+#include "wavegain.h"
 #include "cids.h"
 
 #include "base/source/fstreamer.h"
@@ -12,25 +12,14 @@ using namespace Steinberg;
 
 namespace Airflame {
 //------------------------------------------------------------------------
-// WavegainProcessor
+// Wavegain
 //------------------------------------------------------------------------
-WavegainProcessor::WavegainProcessor ()
-{
-	//--- set the wanted controller for our processor
-	setControllerClass (kWavegainControllerUID);
-}
-
-//------------------------------------------------------------------------
-WavegainProcessor::~WavegainProcessor ()
-{}
-
-//------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::initialize (FUnknown* context)
+tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 {
 	// Here the Plug-in will be instantiated
-	
+
 	//---always initialize the parent-------
-	tresult result = AudioEffect::initialize (context);
+	tresult result = SingleComponentEffect::initialize (context);
 	// if everything Ok, continue
 	if (result != kResultOk)
 	{
@@ -44,27 +33,29 @@ tresult PLUGIN_API WavegainProcessor::initialize (FUnknown* context)
 	/* If you don't need an event bus, you can remove the next line */
 	addEventInput (STR16 ("Event In"), 1);
 
+	// Here you could register some parameters
+
 	return kResultOk;
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::terminate ()
+tresult PLUGIN_API Wavegain::terminate ()
 {
 	// Here the Plug-in will be de-instantiated, last possibility to remove some memory!
-	
+
 	//---do not forget to call parent ------
-	return AudioEffect::terminate ();
+	return SingleComponentEffect::terminate ();
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::setActive (TBool state)
+tresult PLUGIN_API Wavegain::setActive (TBool state)
 {
 	//--- called when the Plug-in is enable/disable (On/Off) -----
-	return AudioEffect::setActive (state);
+	return SingleComponentEffect::setActive (state);
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::process (Vst::ProcessData& data)
+tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 {
 	//--- First : Read inputs parameter changes-----------
 
@@ -84,7 +75,7 @@ tresult PLUGIN_API WavegainProcessor::process (Vst::ProcessData& data)
 			}
 		}
 	}*/
-	
+
 	//--- Here you have to implement your processing
 
 	if (data.numSamples > 0)
@@ -93,7 +84,7 @@ tresult PLUGIN_API WavegainProcessor::process (Vst::ProcessData& data)
 		// here as example a default implementation where we try to copy the inputs to the outputs:
 		// if less input than outputs then clear outputs
 		//--- ------------------------------------------
-		
+
 		int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 i = 0; i < minBus; i++)
 		{
@@ -108,7 +99,7 @@ tresult PLUGIN_API WavegainProcessor::process (Vst::ProcessData& data)
 				}
 			}
 			data.outputs[i].silenceFlags = data.inputs[i].silenceFlags;
-				
+
 			// clear the remaining output buffers
 			for (int32 c = minChan; c < data.outputs[i].numChannels; c++)
 			{
@@ -138,14 +129,14 @@ tresult PLUGIN_API WavegainProcessor::process (Vst::ProcessData& data)
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::setupProcessing (Vst::ProcessSetup& newSetup)
+tresult PLUGIN_API Wavegain::setupProcessing (Vst::ProcessSetup& newSetup)
 {
 	//--- called before any processing ----
-	return AudioEffect::setupProcessing (newSetup);
+	return SingleComponentEffect::setupProcessing (newSetup);
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::canProcessSampleSize (int32 symbolicSampleSize)
+tresult PLUGIN_API Wavegain::canProcessSampleSize (int32 symbolicSampleSize)
 {
 	// by default kSample32 is supported
 	if (symbolicSampleSize == Vst::kSample32)
@@ -159,21 +150,33 @@ tresult PLUGIN_API WavegainProcessor::canProcessSampleSize (int32 symbolicSample
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::setState (IBStream* state)
+tresult PLUGIN_API Wavegain::setState (IBStream* state)
 {
 	// called when we load a preset, the model has to be reloaded
 	IBStreamer streamer (state, kLittleEndian);
-	
+
 	return kResultOk;
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API WavegainProcessor::getState (IBStream* state)
+tresult PLUGIN_API Wavegain::getState (IBStream* state)
 {
 	// here we need to save the model
 	IBStreamer streamer (state, kLittleEndian);
 
 	return kResultOk;
+}
+
+//------------------------------------------------------------------------
+IPlugView* PLUGIN_API Wavegain::createView (FIDString name)
+{
+	// Here the Host wants to open your editor (if you have one)
+	if (FIDStringsEqual (name, Vst::ViewType::kEditor))
+	{
+		// create your editor here and return a IPlugView ptr of it
+        return nullptr;
+	}
+	return nullptr;
 }
 
 //------------------------------------------------------------------------
