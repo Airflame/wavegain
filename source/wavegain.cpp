@@ -6,7 +6,7 @@
 #include "cids.h"
 
 #include "base/source/fstreamer.h"
-#include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "pluginterfaces/base/ustring.h"
 
 using namespace Steinberg;
 
@@ -27,13 +27,15 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	}
 
 	//--- create Audio IO ------
-	addAudioInput (STR16 ("Stereo In"), Steinberg::Vst::SpeakerArr::kStereo);
-	addAudioOutput (STR16 ("Stereo Out"), Steinberg::Vst::SpeakerArr::kStereo);
+	addAudioInput (STR16 ("Stereo In"), Vst::SpeakerArr::kStereo);
+	addAudioOutput (STR16 ("Stereo Out"), Vst::SpeakerArr::kStereo);
 
 	/* If you don't need an event bus, you can remove the next line */
 	addEventInput (STR16 ("Event In"), 1);
 
 	// Here you could register some parameters
+	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
+	parameters.addParameter(gainParam);
 
 	return kResultOk;
 }
