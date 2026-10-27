@@ -36,6 +36,7 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 
 	// Here you could register some parameters
 	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
+	dGain = gainParam->getInfo().defaultNormalizedValue;
 	parameters.addParameter(gainParam);
 
 	return kResultOk;
@@ -98,11 +99,12 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 			int32 minChan = std::min (data.inputs[i].numChannels, data.outputs[i].numChannels);
 			for (int32 c = 0; c < minChan; c++)
 			{
-				// do not need to be copied if the buffers are the same
-				if (data.outputs[i].channelBuffers32[c] != data.inputs[i].channelBuffers32[c])
+				// apply the gain while copying (also works if the buffers are the same)
+				Vst::Sample32* in = data.inputs[i].channelBuffers32[c];
+				Vst::Sample32* out = data.outputs[i].channelBuffers32[c];
+				for (int32 s = 0; s < data.numSamples; s++)
 				{
-					memcpy (data.outputs[i].channelBuffers32[c], data.inputs[i].channelBuffers32[c],
-							data.numSamples * sizeof (Vst::Sample32));
+					out[s] = (Vst::Sample32)(in[s] * dGain);
 				}
 			}
 			data.outputs[i].silenceFlags = data.inputs[i].silenceFlags;
