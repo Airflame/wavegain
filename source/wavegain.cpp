@@ -7,6 +7,7 @@
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
+#include "pluginterfaces/vst/ivstparameterchanges.h"
 
 using namespace Steinberg;
 
@@ -61,7 +62,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 {
 	//--- First : Read inputs parameter changes-----------
 
-	/*if (data.inputParameterChanges)
+	if (data.inputParameterChanges)
 	{
 		int32 numParamsChanged = data.inputParameterChanges->getParameterCount ();
 		for (int32 index = 0; index < numParamsChanged; index++)
@@ -73,10 +74,14 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				int32 numPoints = paramQueue->getPointCount ();
 				switch (paramQueue->getParameterId ())
 				{
+					case 0: // gainParam
+						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
+							dGain = value;
+						break;
 				}
 			}
 		}
-	}*/
+	}
 
 	//--- Here you have to implement your processing
 
