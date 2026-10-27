@@ -9,6 +9,8 @@
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 
+#include <cmath>
+
 using namespace Steinberg;
 
 namespace Airflame {
@@ -88,10 +90,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 
 	if (data.numSamples > 0)
 	{
-		//--- ------------------------------------------
-		// here as example a default implementation where we try to copy the inputs to the outputs:
-		// if less input than outputs then clear outputs
-		//--- ------------------------------------------
+		const double gain = std::pow (10., parameters.getParameter (0)->toPlain (dGain) / 20.);
 
 		int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 i = 0; i < minBus; i++)
@@ -104,7 +103,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				Vst::Sample32* out = data.outputs[i].channelBuffers32[c];
 				for (int32 s = 0; s < data.numSamples; s++)
 				{
-					out[s] = (Vst::Sample32)(in[s] * dGain);
+					out[s] = (Vst::Sample32)(in[s] * gain);
 				}
 			}
 			data.outputs[i].silenceFlags = data.inputs[i].silenceFlags;
