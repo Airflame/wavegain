@@ -38,7 +38,8 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 
 	// Here you could register some parameters
 	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
-	dGain = gainParam->getInfo().defaultNormalizedValue;
+	gainCurr = std::pow (10., gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue) / 20.);
+	gainPrev = gainCurr;
 	parameters.addParameter(gainParam);
 
 	return kResultOk;
@@ -79,7 +80,9 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				{
 					case 0: // gainParam
 						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
-							dGain = value;
+						{
+							gainCurr = std::pow (10., parameters.getParameter (0)->toPlain (value) / 20.);
+						}
 						break;
 				}
 			}
@@ -90,8 +93,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 
 	if (data.numSamples > 0)
 	{
-		const double gain = std::pow (10., parameters.getParameter (0)->toPlain (dGain) / 20.);
-
+		const double gainStep = (gainCurr - gainPrev) / data.numSamples;
 		int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 i = 0; i < minBus; i++)
 		{
@@ -101,8 +103,10 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				// apply the gain while copying (also works if the buffers are the same)
 				Vst::Sample32* in = data.inputs[i].channelBuffers32[c];
 				Vst::Sample32* out = data.outputs[i].channelBuffers32[c];
+				double gain = gainPrev;
 				for (int32 s = 0; s < data.numSamples; s++)
 				{
+					gain += gainStep;
 					out[s] = (Vst::Sample32)(in[s] * gain);
 				}
 			}
@@ -131,6 +135,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 			// inform the host that this bus is silent
 			data.outputs[i].silenceFlags = ((uint64)1 << data.outputs[i].numChannels) - 1;
 		}
+		gainPrev = gainCurr;
 	}
 
 	return kResultOk;
