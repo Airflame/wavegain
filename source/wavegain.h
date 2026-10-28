@@ -18,16 +18,16 @@ public:
 	~Wavegain () SMTG_OVERRIDE = default;
 
     // Create function
-	static Steinberg::FUnknown* createInstance (void* /*context*/)
+	static FUnknown* createInstance (void* /*context*/)
 	{
-		return (Steinberg::Vst::IAudioProcessor*)new Wavegain;
+		return static_cast<IAudioProcessor *>(new Wavegain);
 	}
 
 	//--- ---------------------------------------------------------------------
 	// SingleComponentEffect overrides:
 	//--- ---------------------------------------------------------------------
 	/** Called at first after constructor */
-	Steinberg::tresult PLUGIN_API initialize (Steinberg::FUnknown* context) SMTG_OVERRIDE;
+	Steinberg::tresult PLUGIN_API initialize (FUnknown* context) SMTG_OVERRIDE;
 
 	/** Called at the end before destructor */
 	Steinberg::tresult PLUGIN_API terminate () SMTG_OVERRIDE;
