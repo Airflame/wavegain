@@ -22,7 +22,7 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	// Here the Plug-in will be instantiated
 
 	//---always initialize the parent-------
-	tresult result = SingleComponentEffect::initialize (context);
+	const tresult result = SingleComponentEffect::initialize (context);
 	// if everything Ok, continue
 	if (result != kResultOk)
 	{
@@ -55,7 +55,7 @@ tresult PLUGIN_API Wavegain::terminate ()
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API Wavegain::setActive (TBool state)
+tresult PLUGIN_API Wavegain::setActive (const TBool state)
 {
 	//--- called when the Plug-in is enable/disable (On/Off) -----
 	return SingleComponentEffect::setActive (state);
@@ -68,14 +68,14 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 
 	if (data.inputParameterChanges)
 	{
-		int32 numParamsChanged = data.inputParameterChanges->getParameterCount ();
+		const int32 numParamsChanged = data.inputParameterChanges->getParameterCount ();
 		for (int32 index = 0; index < numParamsChanged; index++)
 		{
 			if (auto* paramQueue = data.inputParameterChanges->getParameterData (index))
 			{
 				Vst::ParamValue value;
 				int32 sampleOffset;
-				int32 numPoints = paramQueue->getPointCount ();
+				const int32 numPoints = paramQueue->getPointCount ();
 				switch (paramQueue->getParameterId ())
 				{
 					case 0: // gainParam
@@ -84,6 +84,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 							gainCurr = std::pow (10., parameters.getParameter (0)->toPlain (value) / 20.);
 						}
 						break;
+					default: ;
 				}
 			}
 		}
@@ -94,20 +95,20 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 	if (data.numSamples > 0)
 	{
 		const double gainStep = (gainCurr - gainPrev) / data.numSamples;
-		int32 minBus = std::min (data.numInputs, data.numOutputs);
+		const int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 i = 0; i < minBus; i++)
 		{
-			int32 minChan = std::min (data.inputs[i].numChannels, data.outputs[i].numChannels);
+			const int32 minChan = std::min (data.inputs[i].numChannels, data.outputs[i].numChannels);
 			for (int32 c = 0; c < minChan; c++)
 			{
 				// apply the gain while copying (also works if the buffers are the same)
-				Vst::Sample32* in = data.inputs[i].channelBuffers32[c];
+				const Vst::Sample32* in = data.inputs[i].channelBuffers32[c];
 				Vst::Sample32* out = data.outputs[i].channelBuffers32[c];
 				double gain = gainPrev;
 				for (int32 s = 0; s < data.numSamples; s++)
 				{
 					gain += gainStep;
-					out[s] = (Vst::Sample32)(in[s] * gain);
+					out[s] = static_cast<Vst::Sample32>(in[s] * gain);
 				}
 			}
 			data.outputs[i].silenceFlags = data.inputs[i].silenceFlags;
@@ -120,7 +121,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 						data.numSamples * sizeof (Vst::Sample32));
 
 				// inform the host that this channel is silent
-				data.outputs[i].silenceFlags |= ((uint64)1 << c);
+				data.outputs[i].silenceFlags |= (static_cast<uint64>(1) << c);
 			}
 		}
 		// clear the remaining output buffers
@@ -133,7 +134,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 						data.numSamples * sizeof (Vst::Sample32));
 			}
 			// inform the host that this bus is silent
-			data.outputs[i].silenceFlags = ((uint64)1 << data.outputs[i].numChannels) - 1;
+			data.outputs[i].silenceFlags = (static_cast<uint64>(1) << data.outputs[i].numChannels) - 1;
 		}
 		gainPrev = gainCurr;
 	}
@@ -149,7 +150,7 @@ tresult PLUGIN_API Wavegain::setupProcessing (Vst::ProcessSetup& newSetup)
 }
 
 //------------------------------------------------------------------------
-tresult PLUGIN_API Wavegain::canProcessSampleSize (int32 symbolicSampleSize)
+tresult PLUGIN_API Wavegain::canProcessSampleSize (const int32 symbolicSampleSize)
 {
 	// by default kSample32 is supported
 	if (symbolicSampleSize == Vst::kSample32)
@@ -181,7 +182,7 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 }
 
 //------------------------------------------------------------------------
-IPlugView* PLUGIN_API Wavegain::createView (FIDString name)
+IPlugView* PLUGIN_API Wavegain::createView (const FIDString name)
 {
 	// Here the Host wants to open your editor (if you have one)
 	if (FIDStringsEqual (name, Vst::ViewType::kEditor))
