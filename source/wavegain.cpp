@@ -33,9 +33,6 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	addAudioInput (STR16 ("Stereo In"), Vst::SpeakerArr::kStereo);
 	addAudioOutput (STR16 ("Stereo Out"), Vst::SpeakerArr::kStereo);
 
-	/* If you don't need an event bus, you can remove the next line */
-	addEventInput (STR16 ("Event In"), 1);
-
 	// Here you could register some parameters
 	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
 	gainCurr = dbToGain (gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue));
