@@ -62,6 +62,11 @@ public:
 protected:
 	double gainCurr = 0.;
 	double gainPrev = 0.;
+
+private:
+	/** Converts between decibels and a linear gain factor */
+	static double dbToGain (double db);
+	static double gainToDb (double gain);
 };
 
 //------------------------------------------------------------------------

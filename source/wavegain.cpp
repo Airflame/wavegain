@@ -38,7 +38,7 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 
 	// Here you could register some parameters
 	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
-	gainCurr = std::pow (10., gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue) / 20.);
+	gainCurr = dbToGain (gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue));
 	gainPrev = gainCurr;
 	parameters.addParameter(gainParam);
 
@@ -81,7 +81,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 					case 0: // gainParam
 						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
 						{
-							gainCurr = std::pow (10., parameters.getParameter (0)->toPlain (value) / 20.);
+							gainCurr = dbToGain (parameters.getParameter (0)->toPlain (value));
 						}
 						break;
 					default: ;
@@ -175,7 +175,7 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 
 	// update the parameter so the host shows the restored value
 	setParamNormalized (0, gainNormalized);
-	gainCurr = std::pow (10., parameters.getParameter (0)->toPlain (getParamNormalized (0)) / 20.);
+	gainCurr = dbToGain (parameters.getParameter (0)->toPlain (getParamNormalized (0)));
 
 	return kResultOk;
 }
@@ -187,7 +187,7 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 	IBStreamer streamer (state, kLittleEndian);
 
 	// save the gain as a normalized value, converted back from the linear factor
-	const double gainNormalized = parameters.getParameter (0)->toNormalized (20. * std::log10 (gainCurr));
+	const double gainNormalized = parameters.getParameter (0)->toNormalized (gainToDb (gainCurr));
 	if (!streamer.writeDouble (gainNormalized))
 		return kResultFalse;
 
@@ -204,6 +204,18 @@ IPlugView* PLUGIN_API Wavegain::createView (const FIDString name)
         return nullptr;
 	}
 	return nullptr;
+}
+
+//------------------------------------------------------------------------
+double Wavegain::dbToGain (const double db)
+{
+	return std::pow (10., db / 20.);
+}
+
+//------------------------------------------------------------------------
+double Wavegain::gainToDb (const double gain)
+{
+	return 20. * std::log10 (gain);
 }
 
 //------------------------------------------------------------------------
