@@ -169,6 +169,14 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 	// called when we load a preset, the model has to be reloaded
 	IBStreamer streamer (state, kLittleEndian);
 
+	double gainNormalized;
+	if (!streamer.readDouble (gainNormalized))
+		return kResultFalse;
+
+	// update the parameter so the host shows the restored value
+	setParamNormalized (0, gainNormalized);
+	gainCurr = std::pow (10., parameters.getParameter (0)->toPlain (getParamNormalized (0)) / 20.);
+
 	return kResultOk;
 }
 
@@ -177,6 +185,11 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 {
 	// here we need to save the model
 	IBStreamer streamer (state, kLittleEndian);
+
+	// save the gain as a normalized value, converted back from the linear factor
+	const double gainNormalized = parameters.getParameter (0)->toNormalized (20. * std::log10 (gainCurr));
+	if (!streamer.writeDouble (gainNormalized))
+		return kResultFalse;
 
 	return kResultOk;
 }
