@@ -19,8 +19,6 @@ namespace Airflame {
 //------------------------------------------------------------------------
 tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 {
-	// Here the Plug-in will be instantiated
-
 	//---always initialize the parent-------
 	const tresult result = SingleComponentEffect::initialize (context);
 	// if everything Ok, continue
@@ -29,11 +27,9 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 		return result;
 	}
 
-	//--- create Audio IO ------
 	addAudioInput (STR16 ("Stereo In"), Vst::SpeakerArr::kStereo);
 	addAudioOutput (STR16 ("Stereo Out"), Vst::SpeakerArr::kStereo);
 
-	// Here you could register some parameters
 	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
 	gainCurr = dbToGain (gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue));
 	gainPrev = gainCurr;
@@ -45,24 +41,18 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 //------------------------------------------------------------------------
 tresult PLUGIN_API Wavegain::terminate ()
 {
-	// Here the Plug-in will be de-instantiated, last possibility to remove some memory!
-
-	//---do not forget to call parent ------
 	return SingleComponentEffect::terminate ();
 }
 
 //------------------------------------------------------------------------
 tresult PLUGIN_API Wavegain::setActive (const TBool state)
 {
-	//--- called when the Plug-in is enable/disable (On/Off) -----
 	return SingleComponentEffect::setActive (state);
 }
 
 //------------------------------------------------------------------------
 tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 {
-	//--- First : Read inputs parameter changes-----------
-
 	if (data.inputParameterChanges)
 	{
 		const int32 numParamsChanged = data.inputParameterChanges->getParameterCount ();
@@ -86,8 +76,6 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 			}
 		}
 	}
-
-	//--- Here you have to implement your processing
 
 	if (data.numSamples > 0)
 	{
@@ -142,14 +130,12 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 //------------------------------------------------------------------------
 tresult PLUGIN_API Wavegain::setupProcessing (Vst::ProcessSetup& newSetup)
 {
-	//--- called before any processing ----
 	return SingleComponentEffect::setupProcessing (newSetup);
 }
 
 //------------------------------------------------------------------------
 tresult PLUGIN_API Wavegain::canProcessSampleSize (const int32 symbolicSampleSize)
 {
-	// by default kSample32 is supported
 	if (symbolicSampleSize == Vst::kSample32)
 		return kResultTrue;
 
