@@ -64,9 +64,12 @@ protected:
 	double gainPrev = 0.;
 
 private:
+	double lfoPhase = 0.;
+
 	/** Converts between decibels and a linear gain factor */
 	static double dbToGain (double db);
 	static double gainToDb (double gain);
+	static double applySineModulation (double gain, double deltaDb, double phase);
 };
 
 //------------------------------------------------------------------------

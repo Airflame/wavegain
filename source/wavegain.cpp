@@ -2,6 +2,8 @@
 // Copyright(c) 2026 Airflame.
 //------------------------------------------------------------------------
 
+#define _USE_MATH_DEFINES // exposes M_PI on MSVC, must come before any include
+
 #include "wavegain.h"
 #include "cids.h"
 
@@ -9,7 +11,9 @@
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstring>
 
 using namespace Steinberg;
 
@@ -80,6 +84,9 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 	if (data.numSamples > 0)
 	{
 		const double gainStep = (gainCurr - gainPrev) / data.numSamples;
+		constexpr double freqHz = 1.;
+		const double phaseStep = freqHz / processSetup.sampleRate;
+
 		const int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 i = 0; i < minBus; i++)
 		{
@@ -90,10 +97,12 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				const Vst::Sample32* in = data.inputs[i].channelBuffers32[c];
 				Vst::Sample32* out = data.outputs[i].channelBuffers32[c];
 				double gain = gainPrev;
+				double phase = lfoPhase;
 				for (int32 s = 0; s < data.numSamples; s++)
 				{
 					gain += gainStep;
-					out[s] = static_cast<Vst::Sample32>(in[s] * gain);
+					phase += phaseStep;
+					out[s] = static_cast<Vst::Sample32>(in[s] * applySineModulation(gain, 3, phase));
 				}
 			}
 			data.outputs[i].silenceFlags = data.inputs[i].silenceFlags;
@@ -122,6 +131,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 			data.outputs[i].silenceFlags = (static_cast<uint64>(1) << data.outputs[i].numChannels) - 1;
 		}
 		gainPrev = gainCurr;
+		lfoPhase = std::fmod (lfoPhase + phaseStep * data.numSamples, 1.);
 	}
 
 	return kResultOk;
@@ -199,6 +209,11 @@ double Wavegain::dbToGain (const double db)
 double Wavegain::gainToDb (const double gain)
 {
 	return 20. * std::log10 (gain);
+}
+
+//------------------------------------------------------------------------
+double Wavegain::applySineModulation(const double gain, const double deltaDb, const double phase) {
+	return gain * dbToGain (deltaDb * std::sin (2. * M_PI * phase));
 }
 
 //------------------------------------------------------------------------
