@@ -62,6 +62,7 @@ public:
 protected:
 	double gainCurr = 0.;
 	double gainPrev = 0.;
+	double lfoFreqHz = 1.;
 
 private:
 	double lfoPhase = 0.;

@@ -34,10 +34,15 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	addAudioInput (STR16 ("Stereo In"), Vst::SpeakerArr::kStereo);
 	addAudioOutput (STR16 ("Stereo Out"), Vst::SpeakerArr::kStereo);
 
-	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), 0, USTRING("dB"), -60, +12, -3);
+	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), kGainParam, USTRING("dB"), -60, +12, -3);
 	gainCurr = dbToGain (gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue));
 	gainPrev = gainCurr;
+
+	Vst::Parameter* lfoFreqParam = new Vst::RangeParameter(USTRING("LFO Frequency"), kLfoFreqParam, USTRING("Hz"), 0.5, 10, 1);
+	lfoFreqHz = lfoFreqParam->toPlain (lfoFreqParam->getInfo().defaultNormalizedValue);
+
 	parameters.addParameter(gainParam);
+	parameters.addParameter(lfoFreqParam);
 
 	return kResultOk;
 }
@@ -69,12 +74,17 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				const int32 numPoints = paramQueue->getPointCount ();
 				switch (paramQueue->getParameterId ())
 				{
-					case 0: // gainParam
+					case kGainParam:
 						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
 						{
-							gainCurr = dbToGain (parameters.getParameter (0)->toPlain (value));
+							gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (value));
 						}
 						break;
+					case kLfoFreqParam:
+						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
+						{
+							lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (value);
+						}
 					default: ;
 				}
 			}
@@ -84,8 +94,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 	if (data.numSamples > 0)
 	{
 		const double gainStep = (gainCurr - gainPrev) / data.numSamples;
-		constexpr double freqHz = 1.;
-		const double phaseStep = freqHz / processSetup.sampleRate;
+		const double phaseStep = lfoFreqHz / processSetup.sampleRate;
 
 		const int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 i = 0; i < minBus; i++)
@@ -167,8 +176,8 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 		return kResultFalse;
 
 	// update the parameter so the host shows the restored value
-	setParamNormalized (0, gainNormalized);
-	gainCurr = dbToGain (parameters.getParameter (0)->toPlain (getParamNormalized (0)));
+	setParamNormalized (kGainParam, gainNormalized);
+	gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (getParamNormalized (kGainParam)));
 
 	return kResultOk;
 }
@@ -180,7 +189,7 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 	IBStreamer streamer (state, kLittleEndian);
 
 	// save the gain as a normalized value, converted back from the linear factor
-	const double gainNormalized = parameters.getParameter (0)->toNormalized (gainToDb (gainCurr));
+	const double gainNormalized = parameters.getParameter (kGainParam)->toNormalized (gainToDb (gainCurr));
 	if (!streamer.writeDouble (gainNormalized))
 		return kResultFalse;
 
