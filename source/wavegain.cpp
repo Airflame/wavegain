@@ -41,8 +41,8 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	Vst::Parameter* lfoFreqParam = new Vst::RangeParameter(USTRING("LFO Frequency"), kLfoFreqParam, USTRING("Hz"), 0.5, 10, 1);
 	lfoFreqHz = lfoFreqParam->toPlain (lfoFreqParam->getInfo().defaultNormalizedValue);
 
-	parameters.addParameter(gainParam);
-	parameters.addParameter(lfoFreqParam);
+	parameters.addParameter (gainParam);
+	parameters.addParameter (lfoFreqParam);
 
 	return kResultOk;
 }
@@ -185,7 +185,7 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 	gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (getParamNormalized (kGainParam)));
 
 	setParamNormalized (kLfoFreqParam, lfoFreqNormalized);
-	lfoFreqHz = parameters.getParameter(kLfoFreqParam)->toPlain (getParamNormalized (kLfoFreqParam));
+	lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (getParamNormalized (kLfoFreqParam));
 
 	return kResultOk;
 }
@@ -233,7 +233,7 @@ double Wavegain::gainToDb (const double gain)
 }
 
 //------------------------------------------------------------------------
-double Wavegain::applySineModulation(const double gain, const double deltaDb, const double phase) {
+double Wavegain::applySineModulation (const double gain, const double deltaDb, const double phase) {
 	return gain * dbToGain (deltaDb * std::sin (2. * M_PI * phase));
 }
 
