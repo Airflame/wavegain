@@ -98,14 +98,14 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 		const double phaseStep = lfoFreqHz / processSetup.sampleRate;
 
 		const int32 minBus = std::min (data.numInputs, data.numOutputs);
-		for (int32 i = 0; i < minBus; i++)
+		for (int32 bus = 0; bus < minBus; bus++)
 		{
-			const int32 minChan = std::min (data.inputs[i].numChannels, data.outputs[i].numChannels);
-			for (int32 c = 0; c < minChan; c++)
+			const int32 minChan = std::min (data.inputs[bus].numChannels, data.outputs[bus].numChannels);
+			for (int32 channel = 0; channel < minChan; channel++)
 			{
 				// apply the gain while copying (also works if the buffers are the same)
-				const Vst::Sample32* in = data.inputs[i].channelBuffers32[c];
-				Vst::Sample32* out = data.outputs[i].channelBuffers32[c];
+				const Vst::Sample32* in = data.inputs[bus].channelBuffers32[channel];
+				Vst::Sample32* out = data.outputs[bus].channelBuffers32[channel];
 				double gain = gainPrev;
 				double phase = lfoPhase;
 				for (int32 s = 0; s < data.numSamples; s++)
@@ -115,30 +115,30 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 					out[s] = static_cast<Vst::Sample32>(in[s] * applySineModulation(gain, 3, phase));
 				}
 			}
-			data.outputs[i].silenceFlags = data.inputs[i].silenceFlags;
+			data.outputs[bus].silenceFlags = data.inputs[bus].silenceFlags;
 
 			// clear the remaining output buffers
-			for (int32 c = minChan; c < data.outputs[i].numChannels; c++)
+			for (int32 channel = minChan; channel < data.outputs[bus].numChannels; channel++)
 			{
 				// clear output buffers
-				memset (data.outputs[i].channelBuffers32[c], 0,
+				memset (data.outputs[bus].channelBuffers32[channel], 0,
 						data.numSamples * sizeof (Vst::Sample32));
 
 				// inform the host that this channel is silent
-				data.outputs[i].silenceFlags |= (static_cast<uint64>(1) << c);
+				data.outputs[bus].silenceFlags |= (static_cast<uint64>(1) << channel);
 			}
 		}
 		// clear the remaining output buffers
-		for (int32 i = minBus; i < data.numOutputs; i++)
+		for (int32 bus = minBus; bus < data.numOutputs; bus++)
 		{
 			// clear output buffers
-			for (int32 c = 0; c < data.outputs[i].numChannels; c++)
+			for (int32 channel = 0; channel < data.outputs[bus].numChannels; channel++)
 			{
-				memset (data.outputs[i].channelBuffers32[c], 0,
+				memset (data.outputs[bus].channelBuffers32[channel], 0,
 						data.numSamples * sizeof (Vst::Sample32));
 			}
 			// inform the host that this bus is silent
-			data.outputs[i].silenceFlags = (static_cast<uint64>(1) << data.outputs[i].numChannels) - 1;
+			data.outputs[bus].silenceFlags = (static_cast<uint64>(1) << data.outputs[bus].numChannels) - 1;
 		}
 		gainPrev = gainCurr;
 		lfoPhase = std::fmod (lfoPhase + phaseStep * data.numSamples, 1.);
