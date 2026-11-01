@@ -18,6 +18,7 @@ enum WavegainParams : Steinberg::Vst::ParamID
 {
 	kGainParam = 0,
 	kLfoFreqParam = 1,
+	kBypassParam = 9,
 };
 
 //------------------------------------------------------------------------

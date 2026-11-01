@@ -63,9 +63,11 @@ protected:
 	double gainCurr = 0.;
 	double gainPrev = 0.;
 	double lfoFreqHz = 1.;
+	bool bypass = false;
 
 private:
 	double lfoPhase = 0.;
+	float wetPrev = 1.f; // 1 = fully processed, 0 = fully bypassed
 
 	/** Converts between decibels and a linear gain factor */
 	static double dbToGain (double db);

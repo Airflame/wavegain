@@ -43,6 +43,9 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 
 	parameters.addParameter (gainParam);
 	parameters.addParameter (lfoFreqParam);
+	parameters.addParameter (STR16 ("Bypass"), nullptr, 1, 0,
+	                         Vst::ParameterInfo::kCanAutomate | Vst::ParameterInfo::kIsBypass,
+	                         kBypassParam);
 
 	return kResultOk;
 }
@@ -86,6 +89,12 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 							lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (value);
 						}
 						break;
+					case kBypassParam:
+						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
+						{
+							bypass = value >= 0.5;
+						}
+						break;
 					default: ;
 				}
 			}
@@ -96,6 +105,8 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 	{
 		const double gainStep = (gainCurr - gainPrev) / data.numSamples;
 		const double phaseStep = lfoFreqHz / processSetup.sampleRate;
+		const float wetCurr = bypass ? 0.f : 1.f;
+		const float wetStep = (wetCurr - wetPrev) / static_cast<float>(data.numSamples);
 
 		const int32 minBus = std::min (data.numInputs, data.numOutputs);
 		for (int32 bus = 0; bus < minBus; bus++)
@@ -106,13 +117,20 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 				// apply the gain while copying (also works if the buffers are the same)
 				const Vst::Sample32* in = data.inputs[bus].channelBuffers32[channel];
 				Vst::Sample32* out = data.outputs[bus].channelBuffers32[channel];
+
 				double gain = gainPrev;
 				double phase = lfoPhase;
+				float wet = wetPrev;
+
 				for (int32 s = 0; s < data.numSamples; s++)
 				{
 					gain += gainStep;
 					phase += phaseStep;
-					out[s] = static_cast<Vst::Sample32>(in[s] * applySineModulation(gain, 3, phase));
+					wet += wetStep;
+
+					const Vst::Sample32 drySample = in[s];
+					const auto processedSample = static_cast<Vst::Sample32>(drySample * applySineModulation(gain, 3, phase));
+					out[s] = processedSample * wet + drySample * (1.f - wet);
 				}
 			}
 			data.outputs[bus].silenceFlags = data.inputs[bus].silenceFlags;
@@ -142,6 +160,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 		}
 		gainPrev = gainCurr;
 		lfoPhase = std::fmod (lfoPhase + phaseStep * data.numSamples, 1.);
+		wetPrev = wetCurr;
 	}
 
 	return kResultOk;
@@ -180,12 +199,19 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 	if (!streamer.readDouble (lfoFreqNormalized))
 		return kResultFalse;
 
+	bool savedBypass;
+	if (!streamer.readBool (savedBypass))
+		return kResultFalse;
+
 	// update the parameter so the host shows the restored value
 	setParamNormalized (kGainParam, gainNormalized);
 	gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (getParamNormalized (kGainParam)));
 
 	setParamNormalized (kLfoFreqParam, lfoFreqNormalized);
 	lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (getParamNormalized (kLfoFreqParam));
+
+	setParamNormalized (kBypassParam, savedBypass ? 1. : 0.);
+	bypass = savedBypass;
 
 	return kResultOk;
 }
@@ -203,6 +229,9 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 
 	const double lfoFreqNormalized = parameters.getParameter (kLfoFreqParam)->toNormalized (lfoFreqHz);
 	if (!streamer.writeDouble (lfoFreqNormalized))
+		return kResultFalse;
+
+	if (!streamer.writeBool (bypass))
 		return kResultFalse;
 
 	return kResultOk;
