@@ -85,6 +85,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 						{
 							lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (value);
 						}
+						break;
 					default: ;
 				}
 			}
@@ -175,9 +176,16 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 	if (!streamer.readDouble (gainNormalized))
 		return kResultFalse;
 
+	double lfoFreqNormalized;
+	if (!streamer.readDouble (lfoFreqNormalized))
+		return kResultFalse;
+
 	// update the parameter so the host shows the restored value
 	setParamNormalized (kGainParam, gainNormalized);
 	gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (getParamNormalized (kGainParam)));
+
+	setParamNormalized (kLfoFreqParam, lfoFreqNormalized);
+	lfoFreqHz = parameters.getParameter(kLfoFreqParam)->toPlain (getParamNormalized (kLfoFreqParam));
 
 	return kResultOk;
 }
@@ -191,6 +199,10 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 	// save the gain as a normalized value, converted back from the linear factor
 	const double gainNormalized = parameters.getParameter (kGainParam)->toNormalized (gainToDb (gainCurr));
 	if (!streamer.writeDouble (gainNormalized))
+		return kResultFalse;
+
+	const double lfoFreqNormalized = parameters.getParameter (kLfoFreqParam)->toNormalized (lfoFreqHz);
+	if (!streamer.writeDouble (lfoFreqNormalized))
 		return kResultFalse;
 
 	return kResultOk;
