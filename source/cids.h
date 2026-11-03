@@ -17,7 +17,8 @@ static const Steinberg::FUID kWavegainUID (0x4566F4A2, 0x45D657CA, 0x9913E9CE, 0
 enum WavegainParams : Steinberg::Vst::ParamID
 {
 	kGainParam = 0,
-	kLfoFreqParam = 1,
+	kLfoFrequencyParam = 1,
+	kLfoAmplitudeParam = 2,
 	kBypassParam = 9,
 };
 
