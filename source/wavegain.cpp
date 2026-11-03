@@ -41,8 +41,13 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	Vst::Parameter* lfoFreqParam = new Vst::RangeParameter(USTRING("LFO Frequency"), kLfoFreqParam, USTRING("Hz"), 0.5, 10, 1);
 	lfoFreqHz = lfoFreqParam->toPlain (lfoFreqParam->getInfo().defaultNormalizedValue);
 
+	Vst::Parameter* lfoAmplitudeParam = new Vst::RangeParameter(USTRING("LFO Amplitude"), kLfoAmplitudeParam, USTRING("dB"), 0, 10, 3);
+	lfoAmplitudeCurr = lfoAmplitudeParam->toPlain (lfoAmplitudeParam->getInfo().defaultNormalizedValue);
+	lfoAmplitudePrev = lfoAmplitudeCurr;
+
 	parameters.addParameter (gainParam);
 	parameters.addParameter (lfoFreqParam);
+	parameters.addParameter (lfoAmplitudeParam);
 	parameters.addParameter (STR16 ("Bypass"), nullptr, 1, 0,
 	                         Vst::ParameterInfo::kCanAutomate | Vst::ParameterInfo::kIsBypass,
 	                         kBypassParam);
@@ -89,6 +94,12 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 							lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (value);
 						}
 						break;
+					case kLfoAmplitudeParam:
+						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
+						{
+							lfoAmplitudeCurr = parameters.getParameter (kLfoAmplitudeParam)->toPlain (value);
+						}
+						break;
 					case kBypassParam:
 						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
 						{
@@ -105,6 +116,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 	{
 		const double gainStep = (gainCurr - gainPrev) / data.numSamples;
 		const double phaseStep = lfoFreqHz / processSetup.sampleRate;
+		const double lfoAmplitudeStep = (lfoAmplitudeCurr - lfoAmplitudePrev) / data.numSamples;
 		const float wetCurr = bypass ? 0.f : 1.f;
 		const float wetStep = (wetCurr - wetPrev) / static_cast<float>(data.numSamples);
 
@@ -120,16 +132,18 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 
 				double gain = gainPrev;
 				double phase = lfoPhase;
+				double lfoAmplitude = lfoAmplitudePrev;
 				float wet = wetPrev;
 
 				for (int32 s = 0; s < data.numSamples; s++)
 				{
 					gain += gainStep;
 					phase += phaseStep;
+					lfoAmplitude += lfoAmplitudeStep;
 					wet += wetStep;
 
 					const Vst::Sample32 drySample = in[s];
-					const auto processedSample = static_cast<Vst::Sample32>(drySample * applySineModulation(gain, 3, phase));
+					const auto processedSample = static_cast<Vst::Sample32>(drySample * applySineModulation(gain, lfoAmplitude, phase));
 					out[s] = processedSample * wet + drySample * (1.f - wet);
 				}
 			}
@@ -160,6 +174,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 		}
 		gainPrev = gainCurr;
 		lfoPhase = std::fmod (lfoPhase + phaseStep * data.numSamples, 1.);
+		lfoAmplitudePrev = lfoAmplitudeCurr;
 		wetPrev = wetCurr;
 	}
 
@@ -199,6 +214,10 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 	if (!streamer.readDouble (lfoFreqNormalized))
 		return kResultFalse;
 
+	double lfoAmplitudeNormalized;
+	if (!streamer.readDouble (lfoAmplitudeNormalized))
+		return kResultFalse;
+
 	bool savedBypass;
 	if (!streamer.readBool (savedBypass))
 		return kResultFalse;
@@ -209,6 +228,9 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 
 	setParamNormalized (kLfoFreqParam, lfoFreqNormalized);
 	lfoFreqHz = parameters.getParameter (kLfoFreqParam)->toPlain (getParamNormalized (kLfoFreqParam));
+
+	setParamNormalized (kLfoAmplitudeParam, lfoAmplitudeNormalized);
+	lfoAmplitudeCurr = parameters.getParameter (kLfoAmplitudeParam)->toPlain (getParamNormalized (kLfoAmplitudeParam));
 
 	setParamNormalized (kBypassParam, savedBypass ? 1. : 0.);
 	bypass = savedBypass;
@@ -229,6 +251,10 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 
 	const double lfoFreqNormalized = parameters.getParameter (kLfoFreqParam)->toNormalized (lfoFreqHz);
 	if (!streamer.writeDouble (lfoFreqNormalized))
+		return kResultFalse;
+
+	const double lfoAmplitudeNormalized = parameters.getParameter (kLfoAmplitudeParam)->toNormalized (lfoAmplitudeCurr);
+	if (!streamer.writeDouble (lfoAmplitudeNormalized))
 		return kResultFalse;
 
 	if (!streamer.writeBool (bypass))
@@ -262,8 +288,8 @@ double Wavegain::gainToDb (const double gain)
 }
 
 //------------------------------------------------------------------------
-double Wavegain::applySineModulation (const double gain, const double deltaDb, const double phase) {
-	return gain * dbToGain (deltaDb * std::sin (2. * M_PI * phase));
+double Wavegain::applySineModulation (const double gain, const double lfoAmplitude, const double lfoPhase) {
+	return gain * dbToGain (lfoAmplitude * std::sin (2. * M_PI * lfoPhase));
 }
 
 //------------------------------------------------------------------------

@@ -63,6 +63,8 @@ protected:
 	double gainCurr = 0.;
 	double gainPrev = 0.;
 	double lfoFreqHz = 1.;
+	double lfoAmplitudeCurr = 3.;
+	double lfoAmplitudePrev = 3.;
 	bool bypass = false;
 
 private:
@@ -72,7 +74,7 @@ private:
 	/** Converts between decibels and a linear gain factor */
 	static double dbToGain (double db);
 	static double gainToDb (double gain);
-	static double applySineModulation (double gain, double deltaDb, double phase);
+	static double applySineModulation (double gain, double lfoAmplitude, double lfoPhase);
 };
 
 //------------------------------------------------------------------------
