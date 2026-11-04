@@ -1,0 +1,173 @@
+{
+	"vstgui-ui-description": {
+		"version": "1",
+		"bitmaps": {},
+		"fonts": {},
+		"colors": {
+			"New": "#ff3affff"
+		},
+		"gradients": {},
+		"control-tags": {
+			"Bypass": "9",
+			"Gain": "0",
+			"LfoAmplitude": "2",
+			"LfoFrequency": "1"
+		},
+		"custom": {
+			"FocusDrawing": {},
+			"VST3Editor": {
+				"Path": "C:/Users/Airflame/vst3/wavegain/Wavegain/resource/editor.uidesc"
+			},
+			"UIGridController": {
+				"Grids": "1x 1,5x 5,10x 10,12x 12,15x 15"
+			},
+			"UITemplateController": {
+				"SelectedTemplate": "view"
+			},
+			"UIEditController": {
+				"EditViewScale": "1",
+				"EditorSize": "0, 0, 836, 679",
+				"SplitViewSize_0_0": "0.8009188361408882128600339456170331686735",
+				"SplitViewSize_0_1": "0.1684532924961715250056215609220089390874",
+				"SplitViewSize_1_0": "0.4839203675344563304605571829597465693951",
+				"SplitViewSize_1_1": "0.508422664624808562372493270231643691659",
+				"SplitViewSize_2_0": "0.7846889952153109915045092748187016695738",
+				"SplitViewSize_2_1": "0.2093301435406698662866631366341607645154",
+				"TabSwitchValue": "2",
+				"Version": "1"
+			},
+			"UIAttributesController": {},
+			"UIViewCreatorDataSource": {
+				"SelectedRow": "14"
+			},
+			"UITagsDataSource": {
+				"SelectedRow": "0"
+			},
+			"UIColorsDataSource": {
+				"SelectedRow": "0"
+			},
+			"UIGradientsDataSource": {
+				"SelectedRow": "-1"
+			},
+			"UIBitmapsDataSource": {
+				"SelectedRow": "-1"
+			},
+			"UIFontsDataSource": {
+				"SelectedRow": "-1"
+			}
+		},
+		"templates": {
+			"view": {
+				"attributes": {
+					"background-color": "~ BlackCColor",
+					"background-color-draw-style": "filled and stroked",
+					"class": "CViewContainer",
+					"mouse-enabled": "true",
+					"opacity": "1",
+					"origin": "0, 0",
+					"size": "300, 300",
+					"transparent": "false",
+					"wants-focus": "false"
+				},
+				"children": {
+					"CKnob": {
+						"attributes": {
+							"angle-range": "270",
+							"angle-start": "135",
+							"circle-drawing": "false",
+							"class": "CKnob",
+							"control-tag": "Gain",
+							"corona-color": "~ RedCColor",
+							"corona-dash-dot": "true",
+							"corona-dash-dot-lengths": "1.26,0.1",
+							"corona-drawing": "true",
+							"corona-from-center": "false",
+							"corona-inset": "12",
+							"corona-inverted": "false",
+							"corona-line-cap-butt": "true",
+							"corona-outline": "true",
+							"corona-outline-width-add": "2",
+							"handle-color": "~ WhiteCColor",
+							"handle-line-width": "8",
+							"handle-shadow-color": "~ BlackCColor",
+							"knob-range": "200",
+							"opacity": "1",
+							"origin": "20, 10",
+							"size": "70, 70",
+							"skip-handle-drawing": "true",
+							"transparent": "false",
+							"value-inset": "3",
+							"wants-focus": "true",
+							"wheel-inc-value": "0.1",
+							"zoom-factor": "1.5"
+						}
+					},
+					"CKnob": {
+						"attributes": {
+							"angle-range": "270",
+							"angle-start": "135",
+							"circle-drawing": "false",
+							"class": "CKnob",
+							"control-tag": "LfoAmplitude",
+							"corona-color": "~ RedCColor",
+							"corona-dash-dot": "true",
+							"corona-dash-dot-lengths": "1.26,0.1",
+							"corona-drawing": "true",
+							"corona-from-center": "false",
+							"corona-inset": "12",
+							"corona-inverted": "false",
+							"corona-line-cap-butt": "true",
+							"corona-outline": "true",
+							"corona-outline-width-add": "2",
+							"handle-color": "~ WhiteCColor",
+							"handle-line-width": "8",
+							"handle-shadow-color": "~ BlackCColor",
+							"knob-range": "200",
+							"opacity": "1",
+							"origin": "110, 10",
+							"size": "70, 70",
+							"skip-handle-drawing": "true",
+							"transparent": "false",
+							"value-inset": "3",
+							"wants-focus": "true",
+							"wheel-inc-value": "0.1",
+							"zoom-factor": "1.5"
+						}
+					},
+					"CKnob": {
+						"attributes": {
+							"angle-range": "270",
+							"angle-start": "135",
+							"circle-drawing": "false",
+							"class": "CKnob",
+							"control-tag": "LfoFrequency",
+							"corona-color": "~ RedCColor",
+							"corona-dash-dot": "true",
+							"corona-dash-dot-lengths": "1.26,0.1",
+							"corona-drawing": "true",
+							"corona-from-center": "false",
+							"corona-inset": "12",
+							"corona-inverted": "false",
+							"corona-line-cap-butt": "true",
+							"corona-outline": "true",
+							"corona-outline-width-add": "2",
+							"handle-color": "~ WhiteCColor",
+							"handle-line-width": "8",
+							"handle-shadow-color": "~ BlackCColor",
+							"knob-range": "200",
+							"opacity": "1",
+							"origin": "190, 10",
+							"size": "70, 70",
+							"skip-handle-drawing": "true",
+							"transparent": "false",
+							"value-inset": "3",
+							"wants-focus": "true",
+							"wheel-inc-value": "0.1",
+							"zoom-factor": "1.5"
+						}
+					}
+				}
+			}
+		}
+	}
+}
