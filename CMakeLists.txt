@@ -37,6 +37,7 @@ smtg_add_vst3plugin(Wavegain
     source/cids.h
     source/wavegain.h
     source/wavegain.cpp
+    source/wavegainutils.h
     source/entry.cpp
     ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/vstsinglecomponenteffect.h
     ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/vstsinglecomponenteffect.cpp

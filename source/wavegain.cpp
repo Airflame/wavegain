@@ -6,6 +6,7 @@
 
 #include "wavegain.h"
 #include "cids.h"
+#include "wavegainutils.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
@@ -35,7 +36,7 @@ tresult PLUGIN_API Wavegain::initialize (FUnknown* context)
 	addAudioOutput (STR16 ("Stereo Out"), Vst::SpeakerArr::kStereo);
 
 	Vst::Parameter* gainParam = new Vst::RangeParameter(USTRING("Volume"), kGainParam, USTRING("dB"), -60, +12, -3);
-	gainCurr = dbToGain (gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue));
+	gainCurr = WavegainUtils::dbToGain (gainParam->toPlain (gainParam->getInfo().defaultNormalizedValue));
 	gainPrev = gainCurr;
 
 	Vst::Parameter* lfoFrequencyParam = new Vst::RangeParameter(USTRING("LFO Frequency"), kLfoFrequencyParam, USTRING("Hz"), 0.5, 10, 1);
@@ -85,7 +86,7 @@ tresult PLUGIN_API Wavegain::process (Vst::ProcessData& data)
 					case kGainParam:
 						if (paramQueue->getPoint (numPoints - 1, sampleOffset, value) == kResultTrue)
 						{
-							gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (value));
+							gainCurr = WavegainUtils::dbToGain (parameters.getParameter (kGainParam)->toPlain (value));
 						}
 						break;
 					case kLfoFrequencyParam:
@@ -224,7 +225,7 @@ tresult PLUGIN_API Wavegain::setState (IBStream* state)
 
 	// update the parameter so the host shows the restored value
 	setParamNormalized (kGainParam, gainNormalized);
-	gainCurr = dbToGain (parameters.getParameter (kGainParam)->toPlain (getParamNormalized (kGainParam)));
+	gainCurr = WavegainUtils::dbToGain (parameters.getParameter (kGainParam)->toPlain (getParamNormalized (kGainParam)));
 
 	setParamNormalized (kLfoFrequencyParam, lfoFrequencyNormalized);
 	lfoFrequencyHz = parameters.getParameter (kLfoFrequencyParam)->toPlain (getParamNormalized (kLfoFrequencyParam));
@@ -245,7 +246,7 @@ tresult PLUGIN_API Wavegain::getState (IBStream* state)
 	IBStreamer streamer (state, kLittleEndian);
 
 	// save the gain as a normalized value, converted back from the linear factor
-	const double gainNormalized = parameters.getParameter (kGainParam)->toNormalized (gainToDb (gainCurr));
+	const double gainNormalized = parameters.getParameter (kGainParam)->toNormalized (WavegainUtils::gainToDb (gainCurr));
 	if (!streamer.writeDouble (gainNormalized))
 		return kResultFalse;
 
@@ -276,20 +277,8 @@ IPlugView* PLUGIN_API Wavegain::createView (const FIDString name)
 }
 
 //------------------------------------------------------------------------
-double Wavegain::dbToGain (const double db)
-{
-	return std::pow (10., db / 20.);
-}
-
-//------------------------------------------------------------------------
-double Wavegain::gainToDb (const double gain)
-{
-	return 20. * std::log10 (gain);
-}
-
-//------------------------------------------------------------------------
 double Wavegain::applySineModulation (const double gain, const double lfoAmplitudeDb, const double lfoPhase) {
-	return gain * dbToGain (lfoAmplitudeDb * std::sin (2. * M_PI * lfoPhase));
+	return gain * WavegainUtils::dbToGain (lfoAmplitudeDb * std::sin (2. * M_PI * lfoPhase));
 }
 
 //------------------------------------------------------------------------
