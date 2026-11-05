@@ -1,12 +1,37 @@
 {
 	"vstgui-ui-description": {
 		"version": "1",
-		"bitmaps": {},
+		"bitmaps": {
+			"logo": {
+				"path": "logo.png"
+			}
+		},
 		"fonts": {},
 		"colors": {
 			"New": "#ff3affff"
 		},
-		"gradients": {},
+		"gradients": {
+			"Default TextButton Gradient": [
+				{
+					"rgba": "#dcdcdcff",
+					"start": "0"
+				},
+				{
+					"rgba": "#b4b4b4ff",
+					"start": "1"
+				}
+			],
+			"Default TextButton Gradient Highlighted": [
+				{
+					"rgba": "#b4b4b4ff",
+					"start": "0"
+				},
+				{
+					"rgba": "#646464ff",
+					"start": "1"
+				}
+			]
+		},
 		"control-tags": {
 			"Bypass": "9",
 			"Gain": "0",
@@ -26,19 +51,19 @@
 			},
 			"UIEditController": {
 				"EditViewScale": "1",
-				"EditorSize": "0, 0, 836, 679",
-				"SplitViewSize_0_0": "0.8009188361408882128600339456170331686735",
-				"SplitViewSize_0_1": "0.1684532924961715250056215609220089390874",
-				"SplitViewSize_1_0": "0.4839203675344563304605571829597465693951",
-				"SplitViewSize_1_1": "0.508422664624808562372493270231643691659",
+				"EditorSize": "0, 0, 836, 706",
+				"SplitViewSize_0_0": "0.8088235294117647189438002897077240049839",
+				"SplitViewSize_0_1": "0.1617647058823529493398751810673275031149",
+				"SplitViewSize_1_0": "0.4845588235294117640528099855146137997508",
+				"SplitViewSize_1_1": "0.5080882352941176183236393626430071890354",
 				"SplitViewSize_2_0": "0.7846889952153109915045092748187016695738",
 				"SplitViewSize_2_1": "0.2093301435406698662866631366341607645154",
-				"TabSwitchValue": "2",
+				"TabSwitchValue": "4",
 				"Version": "1"
 			},
 			"UIAttributesController": {},
 			"UIViewCreatorDataSource": {
-				"SelectedRow": "14"
+				"SelectedRow": "26"
 			},
 			"UITagsDataSource": {
 				"SelectedRow": "0"
@@ -50,10 +75,10 @@
 				"SelectedRow": "-1"
 			},
 			"UIBitmapsDataSource": {
-				"SelectedRow": "-1"
+				"SelectedRow": "0"
 			},
 			"UIFontsDataSource": {
-				"SelectedRow": "-1"
+				"SelectedRow": "0"
 			}
 		},
 		"templates": {
@@ -65,7 +90,7 @@
 					"mouse-enabled": "true",
 					"opacity": "1",
 					"origin": "0, 0",
-					"size": "300, 300",
+					"size": "380, 210",
 					"transparent": "false",
 					"wants-focus": "false"
 				},
@@ -92,7 +117,7 @@
 							"handle-shadow-color": "~ BlackCColor",
 							"knob-range": "200",
 							"opacity": "1",
-							"origin": "20, 10",
+							"origin": "60, 100",
 							"size": "70, 70",
 							"skip-handle-drawing": "true",
 							"transparent": "false",
@@ -124,7 +149,7 @@
 							"handle-shadow-color": "~ BlackCColor",
 							"knob-range": "200",
 							"opacity": "1",
-							"origin": "110, 10",
+							"origin": "150, 100",
 							"size": "70, 70",
 							"skip-handle-drawing": "true",
 							"transparent": "false",
@@ -156,7 +181,7 @@
 							"handle-shadow-color": "~ BlackCColor",
 							"knob-range": "200",
 							"opacity": "1",
-							"origin": "190, 10",
+							"origin": "240, 100",
 							"size": "70, 70",
 							"skip-handle-drawing": "true",
 							"transparent": "false",
@@ -164,6 +189,117 @@
 							"wants-focus": "true",
 							"wheel-inc-value": "0.1",
 							"zoom-factor": "1.5"
+						}
+					},
+					"CParamDisplay": {
+						"attributes": {
+							"back-color": "~ BlackCColor",
+							"background-offset": "0, 0",
+							"class": "CParamDisplay",
+							"control-tag": "Gain",
+							"font": "~ NormalFont",
+							"font-antialias": "true",
+							"font-color": "~ WhiteCColor",
+							"frame-color": "~ BlackCColor",
+							"frame-width": "1",
+							"opacity": "1",
+							"origin": "60, 170",
+							"round-rect-radius": "6",
+							"shadow-color": "~ RedCColor",
+							"size": "70, 20",
+							"style-3D-in": "false",
+							"style-3D-out": "false",
+							"style-no-draw": "false",
+							"style-no-frame": "false",
+							"style-no-text": "false",
+							"style-round-rect": "false",
+							"style-shadow-text": "false",
+							"text-alignment": "center",
+							"text-inset": "0, 0",
+							"text-rotation": "0",
+							"text-shadow-offset": "1, 1",
+							"transparent": "false",
+							"value-precision": "2",
+							"wants-focus": "false",
+							"wheel-inc-value": "0.1"
+						}
+					},
+					"CParamDisplay": {
+						"attributes": {
+							"back-color": "~ BlackCColor",
+							"background-offset": "0, 0",
+							"class": "CParamDisplay",
+							"control-tag": "LfoAmplitude",
+							"font": "~ NormalFont",
+							"font-antialias": "true",
+							"font-color": "~ WhiteCColor",
+							"frame-color": "~ BlackCColor",
+							"frame-width": "1",
+							"opacity": "1",
+							"origin": "150, 170",
+							"round-rect-radius": "6",
+							"shadow-color": "~ RedCColor",
+							"size": "70, 20",
+							"style-3D-in": "false",
+							"style-3D-out": "false",
+							"style-no-draw": "false",
+							"style-no-frame": "false",
+							"style-no-text": "false",
+							"style-round-rect": "false",
+							"style-shadow-text": "false",
+							"text-alignment": "center",
+							"text-inset": "0, 0",
+							"text-rotation": "0",
+							"text-shadow-offset": "1, 1",
+							"transparent": "false",
+							"value-precision": "2",
+							"wants-focus": "false",
+							"wheel-inc-value": "0.1"
+						}
+					},
+					"CParamDisplay": {
+						"attributes": {
+							"back-color": "~ BlackCColor",
+							"background-offset": "0, 0",
+							"class": "CParamDisplay",
+							"control-tag": "LfoFrequency",
+							"font": "~ NormalFont",
+							"font-antialias": "true",
+							"font-color": "~ WhiteCColor",
+							"frame-color": "~ BlackCColor",
+							"frame-width": "1",
+							"opacity": "1",
+							"origin": "240, 170",
+							"round-rect-radius": "6",
+							"shadow-color": "~ RedCColor",
+							"size": "70, 20",
+							"style-3D-in": "false",
+							"style-3D-out": "false",
+							"style-no-draw": "false",
+							"style-no-frame": "false",
+							"style-no-text": "false",
+							"style-round-rect": "false",
+							"style-shadow-text": "false",
+							"text-alignment": "center",
+							"text-inset": "0, 0",
+							"text-rotation": "0",
+							"text-shadow-offset": "1, 1",
+							"transparent": "false",
+							"value-precision": "2",
+							"wants-focus": "false",
+							"wheel-inc-value": "0.1"
+						}
+					},
+					"CView": {
+						"attributes": {
+							"bitmap": "logo",
+							"class": "CView",
+							"mouse-enabled": "true",
+							"opacity": "1",
+							"origin": "10, 10",
+							"size": "346, 80",
+							"transparent": "false",
+							"wants-focus": "false"
 						}
 					}
 				}
