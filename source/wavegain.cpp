@@ -11,6 +11,7 @@
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "vstgui/plugin-bindings/vst3editor.h"
 
 #include <algorithm>
 #include <cmath>
@@ -270,8 +271,7 @@ IPlugView* PLUGIN_API Wavegain::createView (const FIDString name)
 	// Here the Host wants to open your editor (if you have one)
 	if (FIDStringsEqual (name, Vst::ViewType::kEditor))
 	{
-		// create your editor here and return a IPlugView ptr of it
-        return nullptr;
+		return new VSTGUI::VST3Editor (this, "view", "editor.uidesc");
 	}
 	return nullptr;
 }

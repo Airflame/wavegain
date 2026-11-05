@@ -56,6 +56,7 @@ if(SMTG_ENABLE_VSTGUI_SUPPORT)
     smtg_target_add_plugin_resources(Wavegain
         RESOURCES
             "resource/editor.uidesc"
+            "resource/logo.png"
     )
 endif(SMTG_ENABLE_VSTGUI_SUPPORT)
 # -------------------
